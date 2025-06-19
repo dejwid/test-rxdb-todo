@@ -1,4 +1,4 @@
-import { addRxPlugin, createRxDatabase } from "rxdb/plugins/core";
+import { addRxPlugin, createRxDatabase, type RxDatabase } from "rxdb/plugins/core";
 import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
 import { getRxStorageLocalstorage } from "rxdb/plugins/storage-localstorage";
 import { wrappedValidateAjvStorage } from "rxdb/plugins/validate-ajv";
@@ -6,7 +6,10 @@ import { replicateRxCollection } from 'rxdb/plugins/replication';
 
 addRxPlugin(RxDBDevModePlugin);
 
-const db = await createRxDatabase({
+let dbPromise:null|Promise<RxDatabase> = null;
+
+const createDb = async () => {
+  const db = await createRxDatabase({
   name: "db",
   storage: wrappedValidateAjvStorage({
     storage: getRxStorageLocalstorage(),
@@ -74,5 +77,14 @@ const replicationState = await replicateRxCollection({
       },
     }
 });
+return db;
+};
 
-export { db };
+
+
+export const getDb = () => {
+  if (!dbPromise) {
+    dbPromise = createDb();
+  }
+  return dbPromise;
+};

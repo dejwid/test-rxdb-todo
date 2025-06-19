@@ -1,20 +1,23 @@
 'use client';
 import { use, useEffect, useState } from "react";
-import { db } from "~/db";
+import { getDb } from "~/db";
 
 export default function TodosList() {
   const [todos, setTodos] = useState<string[]>([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    db.todos.find().exec().then((todos) => {
-      setTodos([...todos.map(d => d.name)]);
+    getDb().then(db => {
+      db.todos.find().exec().then((todos) => {
+        setTodos([...todos.map(d => d.name)]);
+      });
     });
   }, []);
 
-  function addTodo(e: React.FormEvent<HTMLFormElement>) {
+  async function addTodo(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setTodos([...todos, input]);
+    const db = await getDb();
     db.todos.insert({
       id: Date.now().toString(),
       name: input,
