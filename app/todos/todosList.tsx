@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { use, useEffect, useState } from "react";
 import { getDb } from "~/db";
 
@@ -7,10 +7,15 @@ export default function TodosList() {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    getDb().then(db => {
-      db.todos.find().exec().then((todos) => {
-        setTodos([...todos.map(d => d.name)]);
-      });
+    getDb().then((db) => {
+      db.todos
+        .find()
+        .exec()
+        .then((todos) => {
+          const foundTodos = [...todos.map((d) => d.name)];
+          console.log("foundTodos", foundTodos);
+          setTodos(foundTodos);
+        });
     });
   }, []);
 
@@ -18,14 +23,16 @@ export default function TodosList() {
     e.preventDefault();
     setTodos([...todos, input]);
     const db = await getDb();
-    db.todos.insert({
-      id: Date.now().toString(),
-      name: input,
-      done: false,
-      timestamp: new Date().toISOString(),
-    }).then(() => {
-      console.log("todo added");
-    });
+    db.todos
+      .insert({
+        id: Date.now().toString(),
+        name: input,
+        done: false,
+        timestamp: new Date().toISOString(),
+      })
+      .then(() => {
+        console.log("todo added");
+      });
     setInput("");
   }
 
@@ -36,19 +43,17 @@ export default function TodosList() {
       {todos.map((todo) => (
         <div key={todo}>{todo}</div>
       ))}
-      <form 
-        onSubmit={addTodo}
-        className="flex gap-4">
+      <form onSubmit={addTodo} className="flex gap-4">
         <input
           type="text"
-          placeholder="Add todo" 
+          placeholder="Add todo"
           className="p-2 border-2 border-gray-300"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-        <button 
+        <button
           type="submit"
-          className="p-2 border-2 border-gray-300 cursor-pointer" 
+          className="p-2 border-2 border-gray-300 cursor-pointer"
         >
           Add
         </button>
